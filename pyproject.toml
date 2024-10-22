@@ -29,7 +29,7 @@ rich = "^13.4.2"
 
 [tool.poetry.group.dev.dependencies]
 types-tqdm = "^4.65.0.1"
-lxml-stubs = "^0.4.0"
+lxml-stubs = "^0.5.1"
 pandas-stubs = "^2.0.2.230605"
 types-pillow = "^9.5.0.4"
 types-pywin32 = "^306.0.0.2"
