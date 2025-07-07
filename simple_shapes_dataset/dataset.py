@@ -58,7 +58,7 @@ class SimpleShapesDataset(Dataset):
         self,
         dataset_path: str | Path,
         split: str,
-        domain_classes: Mapping[DomainDesc, type[DataDomain]],
+        domain_classes: dict[DomainDesc, DataDomain],
         max_size: int | None = None,
         transforms: Mapping[str, Callable[[Any], Any]] | None = None,
         domain_args: Mapping[str, Any] | None = None,

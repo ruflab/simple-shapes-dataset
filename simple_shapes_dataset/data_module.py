@@ -86,7 +86,11 @@ class SimpleShapesDataModule(LightningDataModule):
         self._collate_fn = collate_fn
 
     def get_domain_classes(self, domain_classes: Mapping[DomainDesc, type[DataDomain]]):
-        self.domain_classes = {"train": {}, "val": {}, "test": {}}
+        self.domain_classes: dict[str, dict[DomainDesc, DataDomain]] = {
+            "train": {},
+            "val": {},
+            "test": {},
+        }
 
         self.domains = {domain.kind for domain in domain_classes}
 
