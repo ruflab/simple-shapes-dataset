@@ -125,7 +125,7 @@ class SimpleShapesDataModule(LightningDataModule):
 
         domains = self._get_selected_domains()
 
-        if split == "train" and self._requires_aligned_dataset():
+        if self._requires_aligned_dataset():
             if self.seed is None:
                 raise ValueError("Seed must be provided when using aligned dataset")
 
@@ -258,9 +258,10 @@ class SimpleShapesDataModule(LightningDataModule):
         assert self.val_dataset is not None
 
         dataloaders = {}
+        max_sized_dataset = max(len(dataset) for dataset in self.val_dataset.values())
         for domain, dataset in self.val_dataset.items():
             dataloaders[domain] = DataLoader(
-                dataset,
+                RepeatedDataset(dataset, max_sized_dataset, drop_last=False),
                 pin_memory=True,
                 batch_size=self.batch_size,
                 num_workers=self.num_workers,
@@ -275,7 +276,7 @@ class SimpleShapesDataModule(LightningDataModule):
                     num_workers=self.num_workers,
                     collate_fn=self._collate_fn,
                 )
-        return CombinedLoader(dataloaders, mode="sequential")
+        return CombinedLoader(dataloaders, mode="min_size")
 
     def test_dataloader(
         self,
@@ -283,9 +284,10 @@ class SimpleShapesDataModule(LightningDataModule):
         assert self.test_dataset is not None
 
         dataloaders = {}
+        max_sized_dataset = max(len(dataset) for dataset in self.test_dataset.values())
         for domain, dataset in self.test_dataset.items():
             dataloaders[domain] = DataLoader(
-                dataset,
+                RepeatedDataset(dataset, max_sized_dataset, drop_last=False),
                 pin_memory=True,
                 batch_size=self.batch_size,
                 num_workers=self.num_workers,
@@ -300,7 +302,7 @@ class SimpleShapesDataModule(LightningDataModule):
                     num_workers=self.num_workers,
                     collate_fn=self._collate_fn,
                 )
-        return CombinedLoader(dataloaders, mode="sequential")
+        return CombinedLoader(dataloaders, mode="min_size")
 
     def predict_dataloader(self):
         assert self.val_dataset is not None
