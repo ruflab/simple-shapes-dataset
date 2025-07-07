@@ -88,7 +88,7 @@ class SimpleShapesDataModule(LightningDataModule):
     def get_domain_classes(
         self, domain_classes: Mapping[DomainDesc, type[DataDomain]]
     ) -> dict[str, dict[DomainDesc, DataDomain]]:
-        all_domain_classes = {
+        all_domain_classes: dict[str, dict[DomainDesc, DataDomain]] = {
             "train": {},
             "val": {},
             "test": {},
@@ -145,8 +145,8 @@ class SimpleShapesDataModule(LightningDataModule):
                 return True
         return False
 
-    def _get_selected_domains(self) -> set[str]:
-        return {domain.kind for domain in self.domain_classes}
+    def _get_selected_domains(self, split: str) -> set[str]:
+        return {domain.kind for domain in self.domain_classes[split]}
 
     def _get_dataset(self, split: str) -> Mapping[frozenset[str], DatasetT]:
         assert split in ("train", "val", "test")
