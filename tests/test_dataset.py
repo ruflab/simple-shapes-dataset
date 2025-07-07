@@ -74,7 +74,7 @@ def test_dataloader():
 
 
 def test_get_aligned_datasets():
-    transform = {"v": ToTensor(), "attr": attribute_to_tensor}
+    transform = {"t": Compose([]), "v": Compose([])}
 
     datasets = get_aligned_datasets(
         PROJECT_DIR / "sample_dataset",
