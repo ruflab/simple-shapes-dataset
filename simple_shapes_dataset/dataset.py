@@ -84,16 +84,7 @@ class SimpleShapesDataset(Dataset):
         self.domain_args = domain_args or {}
 
         for domain, domain_cls in domain_classes.items():
-            transform = None
-            if transforms is not None and domain.kind in transforms:
-                transform = transforms[domain.kind]
-
-            self.domains[domain.kind] = domain_cls(
-                dataset_path,
-                split,
-                transform,
-                self.domain_args.get(domain.kind, None),
-            )
+            self.domains[domain.kind] = domain_cls
 
         lengths = {len(domain) for domain in self.domains.values()}
         min_length = min(lengths)
