@@ -69,7 +69,7 @@ class SimpleShapesDataModule(LightningDataModule):
         self._train_transform = train_transforms or {}
         self._val_transform = val_transforms or {}
         self._use_default_transforms = use_default_transforms
-        self.get_domain_classes(domain_classes)
+        self.domain_classes = self.get_domain_classes(domain_classes)
 
         self.max_train_size = max_train_size
         self.batch_size = batch_size
@@ -85,8 +85,10 @@ class SimpleShapesDataModule(LightningDataModule):
 
         self._collate_fn = collate_fn
 
-    def get_domain_classes(self, domain_classes: Mapping[DomainDesc, type[DataDomain]]):
-        self.domain_classes: dict[str, dict[DomainDesc, DataDomain]] = {
+    def get_domain_classes(
+        self, domain_classes: Mapping[DomainDesc, type[DataDomain]]
+    ) -> dict[str, dict[DomainDesc, DataDomain]]:
+        all_domain_classes = {
             "train": {},
             "val": {},
             "test": {},
@@ -102,12 +104,14 @@ class SimpleShapesDataModule(LightningDataModule):
                 if transforms is not None and domain.kind in transforms:
                     transform = transforms[domain.kind]
 
-                self.domain_classes[split][domain] = domain_cls(
+                all_domain_classes[split][domain] = domain_cls(
                     self.dataset_path,
                     split,
                     transform,
                     self.domain_args.get(domain.kind, None),
                 )
+
+        return all_domain_classes
 
     def _get_transforms(
         self, domains: Iterable[str], mode: str

@@ -3,7 +3,7 @@ import torch.utils.data
 from utils import PROJECT_DIR
 
 from simple_shapes_dataset.dataset import SimpleShapesDataset
-from simple_shapes_dataset.domain import get_default_domains
+from simple_shapes_dataset.domain import get_default_domains_dataset
 from simple_shapes_dataset.pre_process import attribute_to_tensor
 
 
@@ -14,7 +14,12 @@ def test_attr_preprocess():
     dataset = SimpleShapesDataset(
         PROJECT_DIR / "sample_dataset",
         split="train",
-        domain_classes=get_default_domains(["attr"]),
+        domain_classes=get_default_domains_dataset(
+            ["attr"],
+            PROJECT_DIR / "sample_dataset",
+            split="train",
+            transforms=transform,
+        ),
         transforms=transform,
     )
 
@@ -35,7 +40,12 @@ def test_attr_preprocess_with_unpaired():
     dataset = SimpleShapesDataset(
         PROJECT_DIR / "sample_dataset",
         split="train",
-        domain_classes=get_default_domains(["attr"]),
+        domain_classes=get_default_domains_dataset(
+            ["attr"],
+            PROJECT_DIR / "sample_dataset",
+            split="train",
+            transforms=transform,
+        ),
         domain_args={"attr": {"n_unpaired": 1}},
         transforms=transform,
     )
