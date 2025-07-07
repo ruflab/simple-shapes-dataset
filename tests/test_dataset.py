@@ -1,21 +1,29 @@
 from torch.utils.data.dataloader import DataLoader
-from torchvision.transforms import ToTensor
+from torchvision.transforms import Compose, ToTensor
 from utils import PROJECT_DIR
 
 from simple_shapes_dataset.data_module import SimpleShapesDataModule
 from simple_shapes_dataset.dataset import SimpleShapesDataset
 from simple_shapes_dataset.domain import (
     get_default_domains,
+    get_default_domains_dataset,
 )
 from simple_shapes_dataset.domain_alignment import get_aligned_datasets
 from simple_shapes_dataset.pre_process import attribute_to_tensor
 
 
 def test_dataset():
+    transform = {"attr": Compose([]), "v": Compose([])}
+
     dataset = SimpleShapesDataset(
         PROJECT_DIR / "sample_dataset",
         split="train",
-        domain_classes=get_default_domains(["v", "attr"]),
+        domain_classes=get_default_domains_dataset(
+            ["v", "attr"],
+            PROJECT_DIR / "sample_dataset",
+            split="train",
+            transforms=transform,
+        ),
     )
 
     assert len(dataset) == 4
@@ -26,10 +34,16 @@ def test_dataset():
 
 
 def test_dataset_val():
+    transform = {"attr": Compose([]), "v": Compose([])}
     dataset = SimpleShapesDataset(
         PROJECT_DIR / "sample_dataset",
         split="val",
-        domain_classes=get_default_domains(["v", "attr"]),
+        domain_classes=get_default_domains_dataset(
+            ["v", "attr"],
+            PROJECT_DIR / "sample_dataset",
+            split="val",
+            transforms=transform,
+        ),
     )
 
     assert len(dataset) == 2
@@ -44,7 +58,12 @@ def test_dataloader():
     dataset = SimpleShapesDataset(
         PROJECT_DIR / "sample_dataset",
         split="train",
-        domain_classes=get_default_domains(["v", "attr"]),
+        domain_classes=get_default_domains_dataset(
+            ["v", "attr"],
+            PROJECT_DIR / "sample_dataset",
+            split="train",
+            transforms=transform,
+        ),
         transforms=transform,
     )
 
@@ -55,10 +74,17 @@ def test_dataloader():
 
 
 def test_get_aligned_datasets():
+    transform = {"t": Compose([]), "v": Compose([])}
+
     datasets = get_aligned_datasets(
         PROJECT_DIR / "sample_dataset",
         "train",
-        domain_classes=get_default_domains(["v", "t"]),
+        domain_classes=get_default_domains_dataset(
+            ["v", "t"],
+            PROJECT_DIR / "sample_dataset",
+            split="train",
+            transforms=transform,
+        ),
         domain_proportions={
             frozenset(["v", "t"]): 0.5,
             frozenset("v"): 1.0,

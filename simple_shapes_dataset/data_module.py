@@ -61,7 +61,6 @@ class SimpleShapesDataModule(LightningDataModule):
             )
 
         self.dataset_path = Path(dataset_path)
-        self.domain_classes = domain_classes
         self.domain_proportions = domain_proportions
         self.seed = seed
         self.ood_seed = ood_seed
@@ -70,6 +69,7 @@ class SimpleShapesDataModule(LightningDataModule):
         self._train_transform = train_transforms or {}
         self._val_transform = val_transforms or {}
         self._use_default_transforms = use_default_transforms
+        self.domain_classes = self.get_domain_classes(domain_classes)
 
         self.max_train_size = max_train_size
         self.batch_size = batch_size
@@ -84,6 +84,34 @@ class SimpleShapesDataModule(LightningDataModule):
         self.test_dataset_ood: Mapping[frozenset[str], DatasetT] | None = None
 
         self._collate_fn = collate_fn
+
+    def get_domain_classes(
+        self, domain_classes: Mapping[DomainDesc, type[DataDomain]]
+    ) -> dict[str, dict[DomainDesc, DataDomain]]:
+        all_domain_classes: dict[str, dict[DomainDesc, DataDomain]] = {
+            "train": {},
+            "val": {},
+            "test": {},
+        }
+
+        self.domains = {domain.kind for domain in domain_classes}
+
+        for split in ["train", "val", "test"]:
+            transforms = self._get_transforms(self.domains, split)
+
+            for domain, domain_cls in domain_classes.items():
+                transform = None
+                if transforms is not None and domain.kind in transforms:
+                    transform = transforms[domain.kind]
+
+                all_domain_classes[split][domain] = domain_cls(
+                    self.dataset_path,
+                    split,
+                    transform,
+                    self.domain_args.get(domain.kind, None),
+                )
+
+        return all_domain_classes
 
     def _get_transforms(
         self, domains: Iterable[str], mode: str
@@ -117,13 +145,13 @@ class SimpleShapesDataModule(LightningDataModule):
                 return True
         return False
 
-    def _get_selected_domains(self) -> set[str]:
-        return {domain.kind for domain in self.domain_classes}
+    def _get_selected_domains(self, split: str) -> set[str]:
+        return {domain.kind for domain in self.domain_classes[split]}
 
     def _get_dataset(self, split: str) -> Mapping[frozenset[str], DatasetT]:
         assert split in ("train", "val", "test")
 
-        domains = self._get_selected_domains()
+        domains = self.domains
 
         if self._requires_aligned_dataset():
             if self.seed is None:
@@ -132,7 +160,7 @@ class SimpleShapesDataModule(LightningDataModule):
             return get_aligned_datasets(
                 self.dataset_path,
                 split,
-                self.domain_classes,
+                self.domain_classes[split],
                 self.domain_proportions,
                 self.seed,
                 self.max_train_size,
@@ -145,7 +173,7 @@ class SimpleShapesDataModule(LightningDataModule):
                 frozenset(domains): SimpleShapesDataset(
                     self.dataset_path,
                     split,
-                    self.domain_classes,
+                    self.domain_classes[split],
                     transforms=self._get_transforms(domains, split),
                     domain_args=self.domain_args,
                 )
@@ -156,7 +184,7 @@ class SimpleShapesDataModule(LightningDataModule):
                 split,
                 {
                     domain_type: domain_cls
-                    for domain_type, domain_cls in self.domain_classes.items()
+                    for domain_type, domain_cls in self.domain_classes[split].items()
                     if domain_type.kind == domain
                 },
                 self.max_train_size,

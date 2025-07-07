@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -386,4 +386,24 @@ def get_default_domains(
         if isinstance(domain, str):
             domain = DomainType[domain].value
         domain_classes[domain] = DEFAULT_DOMAINS[domain.kind]
+    return domain_classes
+
+
+def get_default_domains_dataset(
+    domains: Iterable[DomainDesc | str],
+    dataset_path: str | Path,
+    split: str,
+    transforms: Mapping[str, Callable[[Any], Any]],
+    domain_args: Mapping[str, Any] = {},
+) -> dict[DomainDesc, DataDomain]:
+    domain_classes = {}
+    for domain in domains:
+        if isinstance(domain, str):
+            domain = DomainType[domain].value
+        domain_classes[domain] = DEFAULT_DOMAINS[domain.kind](
+            dataset_path,
+            split,
+            transforms[domain.kind],
+            domain_args.get(domain.kind, None),
+        )
     return domain_classes

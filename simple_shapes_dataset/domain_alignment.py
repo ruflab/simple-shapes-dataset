@@ -52,7 +52,7 @@ def get_alignment(
 def get_aligned_datasets(
     dataset_path: str | Path,
     split: str,
-    domain_classes: Mapping[DomainDesc, type[DataDomain]],
+    domain_classes: Mapping[DomainDesc, DataDomain],
     domain_proportions: Mapping[frozenset[str], float],
     seed: int,
     max_size: int | None = None,
