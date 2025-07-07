@@ -393,7 +393,7 @@ def get_default_domains_dataset(
     domains: Iterable[DomainDesc | str],
     dataset_path: str | Path,
     split: str,
-    transforms: Mapping[str, Callable[[Any], Any]] | None,
+    transforms: Mapping[str, Callable[[Any], Any]],
     domain_args: Mapping[str, Any] = {},
 ) -> dict[DomainDesc, DataDomain]:
     domain_classes = {}
