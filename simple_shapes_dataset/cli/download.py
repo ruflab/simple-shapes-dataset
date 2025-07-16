@@ -52,7 +52,7 @@ def downlad_file(url: str, path: Path):
     default=DATASET_URL,
     help=(
         "Dataset URL. Defaults to "
-        "`https://zenodo.org/records/8112838/files/simple_shapes_dataset.tar.gz`",
+        "`https://zenodo.org/records/8112838/files/simple_shapes_dataset.tar.gz`"
     ),
 )
 @click.option(
