@@ -65,7 +65,7 @@ def download_dataset(
     force: bool,
     no_migration: bool,
     ckpturl: str = DATASET_URL,
-    name: str = "simple_shapes_dataset"
+    name: str = "simple_shapes_dataset",
 ):
     click.echo(f"Downloading in {str(path)}.")
 
